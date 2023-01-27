@@ -63,16 +63,26 @@ export function isScalar(x: any): x is Scalar {
 export type Vector = number[] | boolean[] | string[];
 export function isVector(x: any): x is Vector {
     if(Array.isArray(x)) {
-        let type: string | undefined = undefined;
+        let type = none<'number' | 'string' | 'boolean'>();
         for(const ele of x) {
-            if(!type) {
-                if(typeof ele == 'number' || typeof ele == 'boolean' || typeof ele == 'string') {
-                    type = typeof ele;
-                } else {
-                    return false;
+            if(type.isNone()) {
+                switch(typeof ele) {
+                    case 'number':
+                        type = some('number');
+                        break;
+                    case 'string':
+                        type = some('string');
+                        break;
+                    case 'boolean':
+                        type = some('boolean');
+                        break;
+                    default:
+                        return false;
                 }
-            } else {
-                if(typeof type != type) {
+            }
+            if(type.isSome()) {
+                const type1 = type.unwrap()!;
+                if(type1 != typeof ele) {
                     return false;
                 }
             }
@@ -86,7 +96,7 @@ export interface Section {
     [key: string]: Scalar | Vector;
 }
 export function implSection(x: any): x is Section {
-    if(typeof x == 'object') {
+    if(typeof x == 'object' && !Array.isArray(x)) {
         const obj = x as object;
         for(const v of Object.values(obj)) {
             if(isScalar(v) || isVector(v)) {
@@ -103,7 +113,7 @@ export interface SectionGroup {
     [key: string]: Section;
 }
 export function implSectionGroup(x: any): x is SectionGroup {
-    if(typeof x == 'object') {
+    if(typeof x == 'object' && !Array.isArray(x)) {
         const obj = x as object;
         for(const v of Object.values(obj)) {
             if(implSection(v)) {
@@ -120,7 +130,7 @@ export interface RwToml {
     [key: string]: Section | SectionGroup;
 }
 export function implRwToml(x: any): x is RwToml {
-    if(typeof x == 'object') {
+    if(typeof x == 'object' && !Array.isArray(x)) {
         const obj = x as object;
         for(const v of Object.values(obj)) {
             if(implSection(v) || implSectionGroup(v)) {

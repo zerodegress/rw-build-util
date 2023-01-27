@@ -43,7 +43,8 @@ describe('/builder/toml build()', () => {
                 content: {
                     "core": {
                         "name": "az",
-                        "list": ["one", "two", "three"]
+                        "list": ["one", "two", "three"],
+                        "list2": [1, 2, 3]
                     },
                     "projectile": {
                         "main": {
@@ -79,6 +80,7 @@ describe('/builder/toml build()', () => {
         expect(result.isOk()).to.equal(true);
         const targets = result.unwrap();
         expect(targets[0].content['core']['list']).to.equal('one,two,three');
+        expect(targets[0].content['core']['list2']).to.equal('1,2,3');
         expect(targets[0].path.join('/')).to.equal('a/abc');
     });
 });

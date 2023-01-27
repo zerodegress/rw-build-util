@@ -40,7 +40,7 @@ export function toString(ini: RwIni): string {
     for(const sec in ini) {
         str += `[${sec}]\n`;
         for(const key in ini[sec]) {
-            str += `${key}:${ini[sec][key].includes('\n') ? `"""${ini[sec][key]}"""` : ini[sec][key]}`;
+            str += `${key}:${ini[sec][key].includes('\n') ? `"""${ini[sec][key]}"""` : ini[sec][key]}\n`;
         }
     }
     return str;
