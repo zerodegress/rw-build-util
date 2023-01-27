@@ -1,6 +1,6 @@
 {
   "name": "rw-build-util",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A util lib for rw-build and other rw-build-like programs.",
   "main": "lib/index.js",
   "scripts": {
