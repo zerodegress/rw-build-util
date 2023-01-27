@@ -1,5 +1,5 @@
 import { Optional } from "./optional";
-export interface Transform<T> {
+export interface Converter<T> {
     (x: T): T;
 }
 export interface MapFilter<T> {

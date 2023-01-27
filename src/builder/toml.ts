@@ -1,21 +1,23 @@
-import { BuilderContext, PathBuilder, PathObject } from "."
+import { BuilderContext, PathBuilder, PathObject, buildWithPreConverters, Into, Builder, ConverterContext, Converter } from "."
 import { RwIni } from "../data/ini"
-import { RwToml } from "../data/toml"
+import { RwToml, Section as TomlSection } from "../data/toml"
 import * as rwtoml from "../data/toml";
 import { err, ok, Result } from "../util/result";
 import { none, some } from "../util/optional";
+import { Path } from "../util/path";
 
 
-export type RwTomlBuilderSource<From = null, Next = null, Last = null> = PathObject<From, RwToml, RwIni, Next, Last>;
-export type RwTomlBuilderTarget<To = null, Next = null, Last = null> = PathObject<RwToml, RwIni, To, Next, Last>;
-export type RwTomlBuilderContext<From = null, To = null, Next = null, Last = null> = BuilderContext<RwTomlBuilderSource<From, Next, Last>, RwTomlBuilderTarget<To, Next, Last>>;
+export type RwTomlBuilderSource = PathObject<null, RwToml, RwIni>;
+export type RwTomlBuilderTarget = PathObject<RwToml, RwIni, null>;
+export type RwTomlBuilderContext = BuilderContext<RwTomlBuilderSource, RwTomlBuilderTarget>;
+export type RwTomlBuilder = Builder<RwTomlBuilderSource, RwTomlBuilderTarget, RwTomlBuilderContext>;
 
-export function RwTomlBuilder<From = null, To = null, Next = null, Last = null>(obj: {
-    context: RwTomlBuilderContext<From, To, Next, Last>,
-    source: RwTomlBuilderSource<From, Next, Last>,
-}, starter?: RwTomlBuilderSource<From, Next, Last>): Result<{
-    context: RwTomlBuilderContext<From, To, Next, Last>,
-    target: RwTomlBuilderTarget<To, Next, Last>
+export function rwTomlBuilder(obj: {
+    context: RwTomlBuilderContext,
+    source: RwTomlBuilderSource,
+}, starter?: RwTomlBuilderSource): Result<{
+    context: RwTomlBuilderContext,
+    target: RwTomlBuilderTarget
 }, Error> {
     const {context, source} = obj;
     if(starter == source) {
@@ -37,16 +39,79 @@ export function RwTomlBuilder<From = null, To = null, Next = null, Last = null>(
             });
         });
         const target: RwTomlBuilderTarget = {
-            path: source.path,
+            path: source.path.slice(),
             content: ini,
             from: some(source),
             to: none()
         };
         source.to = some(target);
+        context.targets.push(target);
         return ok({context, target});
     }
 }
 
-export function RwTomlPreTransform() {
-    
+export type RwTomlObject = PathObject<RwToml, RwToml, RwToml, RwToml, RwToml>;
+export interface RwTomlConverterContext extends ConverterContext<RwTomlObject>, Into<RwTomlBuilderContext> {}
+
+export function presetRwTomlConverter(obj: {
+    context: RwTomlConverterContext,
+    source: RwTomlObject
+}, starter?: RwTomlObject): Result<{
+    context: RwTomlConverterContext,
+    target: RwTomlObject
+}, Error> {
+    const {context, source} = obj;
+    if(starter == source) {
+        return err(new Error(`circle required: ${source.path}`));
+    } else {
+        const toml: RwToml = {};
+        rwtoml.forEach(source.content, ({secMain, secSub, key, value}) => {
+            if(!toml[secMain]) {
+                toml[secMain] = {};
+            }
+            secSub.some((secSub) => {
+                if(!toml[secMain][secSub]) {
+                    toml[secMain][secSub] = {};
+                }
+                const sec = toml[secMain][secSub] as TomlSection;
+                if(rwtoml.isScalar(value)) {
+                    sec[key] = value;
+                } else {
+                    sec[key] = value.join(',');
+                }
+            });
+            secSub.none(() => {
+                const sec = toml[secMain] as TomlSection;
+                if(rwtoml.isScalar(value)) {
+                    sec[key] = value;
+                } else {
+                    sec[key] = value.join(',');
+                }
+            });
+        });
+        const target: RwTomlObject = {
+            path: source.path.slice(),
+            content: toml,
+            from: some(source),
+            to: none()
+        };
+        source.to = some(target);
+        context.targets.push(target);
+        return ok({context, target});
+    }
+}
+
+export function build(obj: {
+    context: RwTomlConverterContext,
+    customPreConverters?: Converter<RwTomlObject, RwTomlConverterContext>[]
+}): Result<RwTomlBuilderTarget[], Error> {
+    const {context, customPreConverters} = obj;
+    if(customPreConverters) {
+        customPreConverters.push(presetRwTomlConverter);
+    }
+    return buildWithPreConverters({
+        context,
+        preConverters: customPreConverters ? customPreConverters : [presetRwTomlConverter],
+        builder: rwTomlBuilder
+    });
 }

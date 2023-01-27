@@ -1,5 +1,7 @@
 import { Unwrap } from ".";
 export interface Optional<T> extends Unwrap<T | undefined> {
+    isSome(): boolean;
+    isNone(): boolean;
     some(callback: (value: T) => void): void;
     none(callback: () => void): void;
 }
