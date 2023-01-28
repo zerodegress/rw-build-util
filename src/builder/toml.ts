@@ -20,6 +20,9 @@ export function rwTomlBuilder(obj: {
     target: RwTomlBuilderTarget
 }, Error> {
     const {context, source} = obj;
+    if(source.to.isSome()) {
+        return ok({context, target: source.to.unwrap()!});
+    }
     if(starter == source) {
         return err(new Error(`circle required: ${source.path}`));
     } else {
@@ -61,6 +64,9 @@ export function presetRwTomlConverter(obj: {
     target: RwTomlObject
 }, Error> {
     const {context, source} = obj;
+    if(source.to.isSome()) {
+        return ok({context, target: source.to.unwrap()!});
+    }
     if(starter == source) {
         return err(new Error(`circle required: ${source.path}`));
     } else {

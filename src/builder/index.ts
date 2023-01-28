@@ -24,7 +24,7 @@ export interface BuilderContext<S, T> {
 }
 
 export interface Builder<S, T, C extends BuilderContext<S, T>> {
-    (obj: {context: C, source: S}, starter?: S): Result<{context: BuilderContext<S, T>, target: T}, Error>;
+    (obj: {context: C, source: S}, starter?: S): Result<{context: C, target: T}, Error>;
 }
 
 export interface PathBuilder<S extends PathObject<From, S, T>, T extends PathObject<S, T, To>, C extends BuilderContext<S, T>, From = unknown, To = unknown> extends Builder<PathObject<From, S, T>, PathObject<S, T, To>, C> {}
@@ -51,10 +51,10 @@ export function build<S, T, C extends BuilderContext<S, T>>(obj: {
     return ok(context.targets);
 }
 
-export function buildWithPreConverters<Pre, S, T, C extends ConverterContext<Pre>>(obj: {
-    context: (C & Into<BuilderContext<S, T>>),
+export function buildWithPreConverters<Pre, S, T, C extends ConverterContext<Pre>, BC extends BuilderContext<S, T>>(obj: {
+    context: (C & Into<BC>),
     preConverters: Converter<Pre, C>[],
-    builder: Builder<S, T, BuilderContext<S, T>>
+    builder: Builder<S, T, BC>
 }): Result<T[], Error> {
     const {context, preConverters, builder} = obj;
     for(const converter of preConverters) {
