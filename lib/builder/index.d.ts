@@ -22,7 +22,7 @@ export interface Builder<S, T, C extends BuilderContext<S, T>> {
         context: C;
         source: S;
     }, starter?: S): Result<{
-        context: BuilderContext<S, T>;
+        context: C;
         target: T;
     }, Error>;
 }
@@ -36,8 +36,8 @@ export declare function build<S, T, C extends BuilderContext<S, T>>(obj: {
     context: C;
     builder: Builder<S, T, C>;
 }): Result<T[], Error>;
-export declare function buildWithPreConverters<Pre, S, T, C extends ConverterContext<Pre>>(obj: {
-    context: (C & Into<BuilderContext<S, T>>);
+export declare function buildWithPreConverters<Pre, S, T, C extends ConverterContext<Pre>, BC extends BuilderContext<S, T>>(obj: {
+    context: (C & Into<BC>);
     preConverters: Converter<Pre, C>[];
-    builder: Builder<S, T, BuilderContext<S, T>>;
+    builder: Builder<S, T, BC>;
 }): Result<T[], Error>;

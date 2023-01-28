@@ -1,19 +1,19 @@
 {
   "name": "rw-build-util",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A util lib for rw-build and other rw-build-like programs.",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc --clean | tsc --build",
     "clean": "tsc --clean",
     "watch": "tsc --watch",
-    "test": "mocha --require ts-node/register test/**/*.ts"
+    "test": "mocha --require ts-node/register test/**/*.ts --exit --recursive --timeout 30000000"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zerodegress/rw-build-util.git"
   },
-  "keywords": [],
+  "keywords": ["lib"],
   "author": "",
   "license": "GPL",
   "bugs": {
@@ -23,6 +23,7 @@
   "devDependencies": {
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.1",
+    "@types/node": "*",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
     "ts-node": "^10.9.1",
