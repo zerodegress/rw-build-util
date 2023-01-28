@@ -35,12 +35,12 @@ export function implRwIni(x: any): x is RwIni {
     }
 }
 
-export function toString(ini: RwIni): string {
+export function toString(ini: RwIni, nextline: string='\n'): string {
     let str = '';
     for(const sec in ini) {
-        str += `[${sec}]\n`;
+        str += `[${sec}]${nextline}`;
         for(const key in ini[sec]) {
-            str += `${key}:${ini[sec][key].includes('\n') ? `"""${ini[sec][key]}"""` : ini[sec][key]}\n`;
+            str += `${key}:${ini[sec][key].includes(nextline) ? `"""${ini[sec][key]}"""` : ini[sec][key]}${nextline}`;
         }
     }
     return str;

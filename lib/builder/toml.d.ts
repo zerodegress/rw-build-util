@@ -1,7 +1,9 @@
-import { BuilderContext, PathObject, Into, Builder, ConverterContext, Converter } from ".";
+import { BuilderContext, PathObject, Builder, ConverterContext, Converter } from ".";
 import { RwIni } from "../data/ini";
 import { RwToml } from "../data/toml";
+import { Into } from "../util";
 import { Result } from "../util/result";
+import { Path } from "../util/path";
 export type RwTomlBuilderSource = PathObject<null, RwToml, RwIni>;
 export type RwTomlBuilderTarget = PathObject<RwToml, RwIni, null>;
 export type RwTomlBuilderContext = BuilderContext<RwTomlBuilderSource, RwTomlBuilderTarget>;
@@ -27,3 +29,8 @@ export declare function build(obj: {
     context: RwTomlConverterContext;
     customPreConverters?: Converter<RwTomlObject, RwTomlConverterContext>[];
 }): Result<RwTomlBuilderTarget[], Error>;
+export declare function buildWithoutPreset(obj: {
+    context: RwTomlConverterContext;
+    customPreConverters?: Converter<RwTomlObject, RwTomlConverterContext>[];
+}): Result<RwTomlBuilderTarget[], Error>;
+export declare function context(sources: [RwToml, Path][]): RwTomlConverterContext;

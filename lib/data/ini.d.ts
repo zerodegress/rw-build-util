@@ -8,4 +8,4 @@ export interface RwIni {
     [key: string]: Section;
 }
 export declare function implRwIni(x: any): x is RwIni;
-export declare function toString(ini: RwIni): string;
+export declare function toString(ini: RwIni, nextline?: string): string;

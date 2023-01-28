@@ -1,7 +1,8 @@
-import { BuilderContext, PathBuilder, PathObject, buildWithPreConverters, Into, Builder, ConverterContext, Converter } from "."
+import { BuilderContext, PathBuilder, PathObject, buildWithPreConverters, Builder, ConverterContext, Converter } from "."
 import { RwIni } from "../data/ini"
 import { RwToml, Section as TomlSection } from "../data/toml"
 import * as rwtoml from "../data/toml";
+import { Into } from "../util";
 import { err, ok, Result } from "../util/result";
 import { none, some } from "../util/optional";
 import { Path } from "../util/path";
@@ -120,4 +121,46 @@ export function build(obj: {
         preConverters: customPreConverters ? customPreConverters : [presetRwTomlConverter],
         builder: rwTomlBuilder
     });
+}
+
+export function buildWithoutPreset(obj: {
+    context: RwTomlConverterContext,
+    customPreConverters?: Converter<RwTomlObject, RwTomlConverterContext>[]
+}): Result<RwTomlBuilderTarget[], Error> {
+    const {context, customPreConverters} = obj;
+    return buildWithPreConverters({
+        context,
+        preConverters: customPreConverters ? customPreConverters : [],
+        builder: rwTomlBuilder
+    });
+}
+
+export function context(sources: [RwToml, Path][]): RwTomlConverterContext {
+    return {
+        sources: sources.map(([toml, path]) => {
+            return {
+                path,
+                content: toml,
+                from: none(),
+                to: none()
+            };
+        }),
+        targets: [],
+        into(this: RwTomlConverterContext) {
+            return {
+                sources: this.sources.map(({
+                    path,
+                    content,
+                }) => {
+                    return {
+                        path,
+                        content,
+                        from: none(),
+                        to: none(),
+                    };
+                }),
+                targets: [],
+            };
+        },
+    };
 }

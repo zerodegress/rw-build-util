@@ -1,12 +1,7 @@
+import { Into } from "../util";
 import { Optional } from "../util/optional";
 import { Path } from "../util/path";
 import { Result } from "../util/result";
-export interface Into<T> {
-    into(): T;
-}
-export interface From<This, T> {
-    from(value: T): This;
-}
 export interface PathObject<From, This, To, Next = unknown, Last = unknown> {
     path: Path;
     content: This;

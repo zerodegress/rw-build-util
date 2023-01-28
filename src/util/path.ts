@@ -43,9 +43,9 @@ export function toModString(path: Path): string {
     return toStringPosix(path).replace(/^\//, 'ROOT:');
 }
 
-export function fromModString(str: string): Path {
-    const pat: Path = str.startsWith('ROOT:') ? ['/'] : ['.'];
-    for(const names of str.replace(/^ROOT:/, '').split('/')) {
+export function fromModString(str: string, sep: string='/'): Path {
+    const pat: Path = str.startsWith('ROOT:') ? [sep] : ['.'];
+    for(const names of str.replace(/^ROOT:/, '').split(sep)) {
         pat.push(names);
     }
     return pat;
